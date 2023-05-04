@@ -185,7 +185,7 @@ public:
 	/**
 	 * Get a bitmask of motors to be stopped
 	 */
-	virtual uint32_t getStoppedMotors() const { return 0; }
+	virtual uint32_t getStoppedMotors() const { return _stopped_motors_mask; }
 
 	/**
 	 * Fill in the allocated and unallocated torque and thrust, customized by effectiveness type.
@@ -193,6 +193,15 @@ public:
 	 */
 	virtual void getAllocatedAndUnallocatedControl(int matrix_index, control_allocator_status_s &status) {}
 
+	/**
+	 * Stops motors which are masked by stoppable_motors_mask and whose demanded thrust is zero
+	 *
+	 * @param stoppable_motors_mask mask of motors that should be stopped if there's no thrust demand
+	 * @param actuator_sp outcome of the allocation to determine if the motor should be stopped
+	 */
+	virtual void stopMaskedMotorsWithZeroThrust(uint32_t stoppable_motors_mask, ActuatorVector &actuator_sp);
+
 protected:
-	FlightPhase _flight_phase{FlightPhase::HOVER_FLIGHT};		///< Current flight phase
+	FlightPhase _flight_phase{FlightPhase::HOVER_FLIGHT};
+	uint32_t _stopped_motors_mask{0};
 };
