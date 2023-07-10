@@ -918,7 +918,7 @@ MissionBlock::get_absolute_altitude_for_item(const mission_item_s &mission_item,
 
 void
 MissionBlock::copy_position_if_valid(struct mission_item_s *const mission_item,
-		const struct position_setpoint_s *const setpoint) const
+				     const struct position_setpoint_s *const setpoint) const
 {
 	if (setpoint->valid && setpoint->type == position_setpoint_s::SETPOINT_TYPE_POSITION) {
 		mission_item->lat = setpoint->lat;
@@ -936,7 +936,7 @@ MissionBlock::copy_position_if_valid(struct mission_item_s *const mission_item,
 
 void
 MissionBlock::set_align_mission_item(struct mission_item_s *const mission_item,
-		const struct mission_item_s *const mission_item_next) const
+				     const struct mission_item_s *const mission_item_next) const
 {
 	mission_item->nav_cmd = NAV_CMD_WAYPOINT;
 	copy_position_if_valid(mission_item, &(_navigator->get_position_setpoint_triplet()->current));

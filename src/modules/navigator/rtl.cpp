@@ -78,7 +78,7 @@ void RTL::updateDatamanCache()
 
 		_dataman_state	= DatamanState::ReadWait;
 		success = _dataman_client_geofence.readAsync(DM_KEY_SAFE_POINTS, 0, reinterpret_cast<uint8_t *>(&_stats),
-						    sizeof(mission_stats_entry_s));
+				sizeof(mission_stats_entry_s));
 
 		if (!success) {
 			_error_state = DatamanState::Read;
@@ -142,18 +142,15 @@ void RTL::updateDatamanCache()
 
 	}
 
-	if(_mission_counter != _mission_sub.get().mission_update_counter)
-	{
+	if (_mission_counter != _mission_sub.get().mission_update_counter) {
 		const dm_item_t dm_item = static_cast<dm_item_t>(_mission_sub.get().dataman_id);
 		_dataman_cache_landItem.invalidate();
 
-		if(_mission_sub.get().land_start_index > 0)
-		{
+		if (_mission_sub.get().land_start_index > 0) {
 			_dataman_cache_landItem.load(dm_item, _mission_sub.get().land_start_index);
 		}
 
-		if(_mission_sub.get().land_index > 0)
-		{
+		if (_mission_sub.get().land_index > 0) {
 			_dataman_cache_landItem.load(dm_item, _mission_sub.get().land_index);
 		}
 	}
@@ -350,13 +347,16 @@ void RTL::findRtlDestination(bool &isMissionLanding, RtlDirect::RtlPosition &rtl
 	if (((_param_rtl_type.get() == 1) || (_param_rtl_type.get() == 3)) && hasMissionLandStart()) {
 		mission_item_s land_mission_item;
 		const dm_item_t dm_item = static_cast<dm_item_t>(_mission_sub.get().dataman_id);
-		bool success = _dataman_cache_landItem.loadWait(dm_item, _mission_sub.get().land_index, reinterpret_cast<uint8_t *>(&land_mission_item),sizeof(mission_item_s),500_ms);
+		bool success = _dataman_cache_landItem.loadWait(dm_item, _mission_sub.get().land_index,
+				reinterpret_cast<uint8_t *>(&land_mission_item), sizeof(mission_item_s), 500_ms);
+
 		if (!success) {
 			/* not supposed to happen unless the datamanager can't access the SD card, etc. */
 			mavlink_log_critical(_navigator->get_mavlink_log_pub(), "Mission land item could not be read.\t");
 			events::send(events::ID("rtl_failed_to_read_land_item"), events::Log::Error,
-					       "Mission land item could not be read");
+				     "Mission land item could not be read");
 		}
+
 		float dist{get_distance_to_next_waypoint(_global_pos_sub.get().lat, _global_pos_sub.get().lon, land_mission_item.lat, land_mission_item.lon)};
 
 		// always find closest destination if in hover and VTOL
@@ -409,7 +409,7 @@ void RTL::findRtlDestination(bool &isMissionLanding, RtlDirect::RtlPosition &rtl
 void RTL::setLandPosAsDestination(RtlDirect::RtlPosition &rtl_position, mission_item_s &land_mission_item)
 {
 	rtl_position.alt = land_mission_item.altitude_is_relative ?	land_mission_item.altitude +
-					      _home_pos_sub.get().alt : land_mission_item.altitude;
+			   _home_pos_sub.get().alt : land_mission_item.altitude;
 	rtl_position.lat = land_mission_item.lat;
 	rtl_position.lon = land_mission_item.lon;
 	rtl_position.yaw = _home_pos_sub.get().yaw;

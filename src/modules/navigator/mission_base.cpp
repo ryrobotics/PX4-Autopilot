@@ -64,16 +64,18 @@ int MissionBase::initMission()
 	mission_s mission;
 	int ret_val{PX4_ERROR};
 
-	bool success = _dataman_client.readSync(DM_KEY_MISSION_STATE, 0, reinterpret_cast<uint8_t *>(&mission), sizeof(mission_s));
+	bool success = _dataman_client.readSync(DM_KEY_MISSION_STATE, 0, reinterpret_cast<uint8_t *>(&mission),
+						sizeof(mission_s));
 
 	if (success) {
-		if(isMissionValid(mission))
-		{
+		if (isMissionValid(mission)) {
 			_mission = mission;
 			ret_val = PX4_OK;
+
 		} else {
 			resetMission();
 		}
+
 	} else {
 		PX4_ERR("Could not initialize Mission: Dataman read failed");
 		resetMission();
@@ -115,10 +117,12 @@ void MissionBase::updateMavlinkMission()
 				bool mission_items_changed = (new_mission.mission_update_counter != _mission.mission_update_counter);
 				_mission = new_mission;
 				_is_current_planned_mission_item_valid = true;
-				if(mission_items_changed) {
+
+				if (mission_items_changed) {
 					_dataman_cache.invalidate();
 					_load_mission_index = -1;
 				}
+
 				onMissionUpdate(mission_items_changed);
 			}
 		}
@@ -129,13 +133,14 @@ void MissionBase::onMissionUpdate(bool has_mission_items_changed)
 {
 	if (has_mission_items_changed) {
 		check_mission_valid();
+
 		// only warn if the check failed on merit
-		if((!_navigator->get_mission_result()->valid) && _mission.count > 0U)
-		{
+		if ((!_navigator->get_mission_result()->valid) && _mission.count > 0U) {
 			PX4_WARN("mission check failed");
 			resetMission();
 		}
 	}
+
 	if (isActive()) {
 		_mission_has_been_activated = true;
 		_navigator->reset_triplets();
@@ -222,6 +227,7 @@ MissionBase::on_activation()
 
 	if (_inactivation_index > 0 && cameraWasTriggering()) {
 		getPreviousPositionItems(_inactivation_index, &resume_index, num_found_items, 1U);
+
 		if (num_found_items == 1U) {
 			// The mission we are resuming had camera triggering enabled. In order to not lose any images
 			// we restart the mission at the previous position item.
@@ -231,6 +237,7 @@ MissionBase::on_activation()
 			_align_heading_necessary = true;
 		}
 	}
+
 	set_mission_items();
 
 	_inactivation_index = -1; // reset
@@ -265,7 +272,7 @@ MissionBase::on_active()
 
 			if (success) {
 				_mission_item.yaw = matrix::wrap_pi(get_bearing_to_next_waypoint(_mission_item.lat, _mission_item.lon,
-							    next_position_mission_item.lat, next_position_mission_item.lon));
+								    next_position_mission_item.lat, next_position_mission_item.lon));
 				_mission_item.force_heading = true; // note: doesn't have effect in fixed-wing mode
 			}
 		}
@@ -453,8 +460,9 @@ MissionBase::set_mission_items()
 		if (!success) {
 			mavlink_log_critical(_navigator->get_mavlink_log_pub(), "Mission item could not be set.\t");
 			events::send(events::ID("mission_item_set_failed"), events::Log::Error,
-					       "Mission item could not be set");
+				     "Mission item could not be set");
 		}
+
 		setActiveMissionItems();
 
 	} else {
@@ -553,7 +561,8 @@ MissionBase::report_do_jump_mission_changed(int index, int do_jumps_remaining)
 void
 MissionBase::checkMissionRestart()
 {
-	if (_system_disarmed_while_inactive && _mission_has_been_activated && (_mission.count > 0U) && ((_mission.current_seq + 1) == _mission.count)) {
+	if (_system_disarmed_while_inactive && _mission_has_been_activated && (_mission.count > 0U)
+	    && ((_mission.current_seq + 1) == _mission.count)) {
 		setMissionIndex(0);
 		_is_current_planned_mission_item_valid = isMissionValid(_mission);
 		resetMissionJumpCounter();
@@ -566,7 +575,7 @@ MissionBase::checkMissionRestart()
 void
 MissionBase::check_mission_valid()
 {
-	if(_navigator->get_mission_result()->instance_count != _mission.mission_update_counter) {
+	if (_navigator->get_mission_result()->instance_count != _mission.mission_update_counter) {
 		MissionFeasibilityChecker missionFeasibilityChecker(_navigator, _dataman_client);
 
 		bool is_mission_valid =
@@ -788,7 +797,7 @@ bool MissionBase::isMissionValid(mission_s &mission) const
 }
 
 int MissionBase::getNonJumpItem(int32_t &mission_index, mission_item_s &mission, bool execute_jump,
-		bool write_jumps, bool mission_direction_backward)
+				bool write_jumps, bool mission_direction_backward)
 {
 	if (mission_index >= _mission.count || mission_index < 0) {
 		return PX4_ERROR;
@@ -802,6 +811,7 @@ int MissionBase::getNonJumpItem(int32_t &mission_index, mission_item_s &mission,
 		/* read mission item from datamanager */
 		bool success = _dataman_cache.loadWait(dataman_id, new_mission_index, reinterpret_cast<uint8_t *>(&new_mission),
 						       sizeof(mission_item_s), MAX_DATAMAN_LOAD_WAIT);
+
 		if (!success) {
 			/* not supposed to happen unless the datamanager can't access the SD card, etc. */
 			mavlink_log_critical(_navigator->get_mavlink_log_pub(), "Waypoint could not be read.\t");
@@ -822,6 +832,7 @@ int MissionBase::getNonJumpItem(int32_t &mission_index, mission_item_s &mission,
 
 					success = _dataman_client.writeSync(dataman_id, new_mission_index, reinterpret_cast<uint8_t *>(&new_mission),
 									    sizeof(struct mission_item_s));
+
 					if (!success) {
 						/* not supposed to happen unless the datamanager can't access the dataman */
 						mavlink_log_critical(_navigator->get_mavlink_log_pub(), "DO JUMP waypoint could not be written.\t");
@@ -829,6 +840,7 @@ int MissionBase::getNonJumpItem(int32_t &mission_index, mission_item_s &mission,
 							     "DO JUMP waypoint could not be written");
 						// Still continue searching for next non jump item.
 					}
+
 					report_do_jump_mission_changed(new_mission_index, new_mission.do_jump_repeat_count - new_mission.do_jump_current_count);
 				}
 
@@ -869,7 +881,7 @@ int MissionBase::goToItem(int32_t index, bool execute_jump, bool mission_directi
 
 void MissionBase::setMissionIndex(int32_t index)
 {
-	if(index != _mission.current_seq) {
+	if (index != _mission.current_seq) {
 		_mission.current_seq = index;
 		_mission.timestamp = hrt_absolute_time();
 		_mission_pub.publish(_mission);
@@ -907,7 +919,7 @@ void MissionBase::getPreviousPositionItems(int32_t start_index, int32_t items_in
 }
 
 void MissionBase::getNextPositionItems(int32_t start_index, int32_t items_index[],
-		size_t &num_found_items, uint8_t max_num_items)
+				       size_t &num_found_items, uint8_t max_num_items)
 {
 	// Make sure vector does not contain any preexisting elements.
 	num_found_items = 0u;
@@ -959,10 +971,12 @@ int MissionBase::goToPreviousPositionItem(bool execute_jump)
 {
 	size_t num_found_items{0U};
 	int32_t previous_position_item_index;
-	getPreviousPositionItems(_mission.current_seq,&previous_position_item_index,num_found_items,1);
-	if(num_found_items == 1U) {
+	getPreviousPositionItems(_mission.current_seq, &previous_position_item_index, num_found_items, 1);
+
+	if (num_found_items == 1U) {
 		setMissionIndex(previous_position_item_index);
 		return PX4_OK;
+
 	} else {
 		return PX4_ERROR;
 	}
@@ -972,10 +986,12 @@ int MissionBase::goToNextPositionItem(bool execute_jump)
 {
 	size_t num_found_items{0U};
 	int32_t next_position_item_index;
-	getNextPositionItems(_mission.current_seq,&next_position_item_index,num_found_items,1);
-	if(num_found_items == 1U) {
+	getNextPositionItems(_mission.current_seq, &next_position_item_index, num_found_items, 1);
+
+	if (num_found_items == 1U) {
 		setMissionIndex(next_position_item_index);
 		return PX4_OK;
+
 	} else {
 		return PX4_ERROR;
 	}
@@ -993,11 +1009,12 @@ int MissionBase::setMissionToClosestItem(double lat, double lon, float alt, floa
 
 		bool success = _dataman_cache.loadWait(dataman_id, mission_item_index, reinterpret_cast<uint8_t *>(&mission),
 						       sizeof(mission_item_s), MAX_DATAMAN_LOAD_WAIT);
+
 		if (!success) {
 			/* not supposed to happen unless the datamanager can't access the SD card, etc. */
 			mavlink_log_critical(_navigator->get_mavlink_log_pub(), "Could not set mission closest to position.\t");
 			events::send(events::ID("mission_failed_set_closest"), events::Log::Error,
-					       "Could not set mission closest to position");
+				     "Could not set mission closest to position");
 			return PX4_ERROR;
 		}
 
@@ -1044,7 +1061,8 @@ void MissionBase::resetMission()
 	new_mission.dataman_id = _mission.dataman_id == DM_KEY_WAYPOINTS_OFFBOARD_0 ? DM_KEY_WAYPOINTS_OFFBOARD_1 :
 				 DM_KEY_WAYPOINTS_OFFBOARD_0;
 
-	bool success = _dataman_client.writeSync(DM_KEY_MISSION_STATE, 0, reinterpret_cast<uint8_t *>(&new_mission),sizeof(mission_s));
+	bool success = _dataman_client.writeSync(DM_KEY_MISSION_STATE, 0, reinterpret_cast<uint8_t *>(&new_mission),
+			sizeof(mission_s));
 
 	if (success) {
 		_mission = new_mission;
@@ -1064,11 +1082,12 @@ void MissionBase::resetMissionJumpCounter()
 
 		bool success = _dataman_cache.loadWait(dataman_id, mission_index, reinterpret_cast<uint8_t *>(&mission_item),
 						       sizeof(mission_item_s), MAX_DATAMAN_LOAD_WAIT);
+
 		if (!success) {
 			/* not supposed to happen unless the datamanager can't access the SD card, etc. */
 			mavlink_log_critical(_navigator->get_mavlink_log_pub(), "Mission could not reset jump count.\t");
 			events::send(events::ID("mission_failed_set_jump_count"), events::Log::Error,
-					       "Mission could not reset jump count");
+				     "Mission could not reset jump count");
 			break;
 		}
 
@@ -1076,7 +1095,7 @@ void MissionBase::resetMissionJumpCounter()
 			mission_item.do_jump_current_count = 0u;
 
 			bool write_success = _dataman_client.writeSync(dataman_id, mission_index, reinterpret_cast<uint8_t *>(&mission_item),
-							sizeof(struct mission_item_s));
+					     sizeof(struct mission_item_s));
 
 			if (!write_success) {
 				PX4_ERR("Could not write mission item for jump count reset.");

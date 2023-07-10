@@ -52,9 +52,10 @@ RtlDirectMissionLand::RtlDirectMissionLand(Navigator *navigator) :
 
 void RtlDirectMissionLand::on_activation()
 {
-	if(hasMissionLandStart()) {
+	if (hasMissionLandStart()) {
 		goToItem(_mission.land_start_index, false);
 		_is_current_planned_mission_item_valid = true;
+
 	} else {
 		_is_current_planned_mission_item_valid = false;
 	}
