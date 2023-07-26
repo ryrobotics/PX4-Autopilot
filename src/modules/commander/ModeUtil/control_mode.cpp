@@ -46,6 +46,8 @@ void getVehicleControlMode(uint8_t nav_state, uint8_t vehicle_type,
 			   const offboard_control_mode_s &offboard_control_mode,
 			   vehicle_control_mode_s &vehicle_control_mode)
 {
+	vehicle_control_mode.flag_control_allocation_enabled = true; // Always enabled by default
+
 	switch (nav_state) {
 	case vehicle_status_s::NAVIGATION_STATE_MANUAL:
 		vehicle_control_mode.flag_control_manual_enabled = true;
