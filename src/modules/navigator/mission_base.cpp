@@ -519,7 +519,7 @@ void
 MissionBase::set_mission_result()
 {
 	_navigator->get_mission_result()->finished = false;
-	_navigator->get_mission_result()->seq_current = _mission.current_seq;
+	_navigator->get_mission_result()->seq_current = _mission.current_seq > 0 ? _mission.current_seq : 0;
 
 	_navigator->set_mission_result_updated();
 }
