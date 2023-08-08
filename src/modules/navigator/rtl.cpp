@@ -249,7 +249,7 @@ void RTL::on_activation()
 		break;
 
 	case RtlType::RTL_DIRECT_MISSION_LAND:
-		_rtl_direct_mission_land.on_activation();
+		_rtl_direct_mission_land.on_activation(_enforce_rtl_alt);
 		break;
 
 	default:
@@ -318,6 +318,7 @@ void RTL::setRtlTypeAndDestination()
 		findRtlDestination(isMissionLanding, rtl_position, rtl_alt);
 
 		if (isMissionLanding) {
+			_rtl_direct_mission_land.setRtlAlt(rtl_alt);
 			_rtl_type = RtlType::RTL_DIRECT_MISSION_LAND;
 
 		} else {

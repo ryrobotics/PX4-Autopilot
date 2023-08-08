@@ -55,13 +55,18 @@ public:
 	RtlDirectMissionLand(Navigator *navigator);
 	~RtlDirectMissionLand() = default;
 
-	void on_activation() override;
+	void on_activation(bool enforce_rtl_alt);
 
 	rtl_time_estimate_s calc_rtl_time_estimate();
+
+	void setRtlAlt(float alt) {_rtl_alt = alt;};
 
 private:
 	bool setNextMissionItem() override;
 	void setActiveMissionItems() override;
 	void handleLanding(WorkItemType &new_work_item_type);
 	bool do_need_move_to_land();
+
+	bool _needs_climbing{false}; 	//< Flag if climbing is required at the start
+	float _rtl_alt{0.0f};	///< AMSL altitude at which the vehicle should return to the land position
 };

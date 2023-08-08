@@ -50,11 +50,35 @@ RtlDirectMissionLand::RtlDirectMissionLand(Navigator *navigator) :
 
 }
 
-void RtlDirectMissionLand::on_activation()
+void RtlDirectMissionLand::on_activation(bool enforce_rtl_alt)
 {
+	_land_detected_sub.update();
+	_global_pos_sub.update();
+
+	_needs_climbing = false;
+
 	if (hasMissionLandStart()) {
 		goToItem(_mission.land_start_index, false);
 		_is_current_planned_mission_item_valid = true;
+
+		mission_item_s land_item;
+
+		const dm_item_t dataman_id = static_cast<dm_item_t>(_mission.dataman_id);
+
+		bool success = _dataman_client.readSync(dataman_id, _mission.land_index, reinterpret_cast<uint8_t *>(&land_item),
+							sizeof(land_item));
+
+		if (!success) {
+			PX4_ERR("RTL Mission Landing. Could not read land item from dataman");
+		}
+
+		if ((_global_pos_sub.get().alt < _rtl_alt) || enforce_rtl_alt) {
+
+			// If lower than return altitude, climb up first.
+			// If enforce_rtl_alt is true then forcing altitude change even if above.
+			_needs_climbing = true;
+
+		}
 
 	} else {
 		_is_current_planned_mission_item_valid = false;
@@ -79,10 +103,42 @@ void RtlDirectMissionLand::setActiveMissionItems()
 	WorkItemType new_work_item_type{WorkItemType::WORK_ITEM_TYPE_DEFAULT};
 	position_setpoint_triplet_s *pos_sp_triplet = _navigator->get_position_setpoint_triplet();
 
-	// Transition to fixed wing if necessary.
-	if (_vehicle_status_sub.get().vehicle_type == vehicle_status_s::VEHICLE_TYPE_ROTARY_WING &&
-	    _vehicle_status_sub.get().is_vtol &&
-	    !_land_detected_sub.get().landed && _work_item_type == WorkItemType::WORK_ITEM_TYPE_DEFAULT) {
+	// Climb to altitude
+	if (_needs_climbing && _work_item_type == WorkItemType::WORK_ITEM_TYPE_DEFAULT) {
+		// do not use LOITER_TO_ALT for rotary wing mode as it would then always climb to at least MIS_LTRMIN_ALT,
+		// even if current climb altitude is below (e.g. RTL immediately after take off)
+		if (_vehicle_status_sub.get().vehicle_type == vehicle_status_s::VEHICLE_TYPE_ROTARY_WING) {
+			_mission_item.nav_cmd = NAV_CMD_WAYPOINT;
+
+		} else {
+			_mission_item.nav_cmd = NAV_CMD_LOITER_TO_ALT;
+		}
+
+		_mission_item.lat = _global_pos_sub.get().lat;
+		_mission_item.lon = _global_pos_sub.get().lon;
+		_mission_item.altitude = _rtl_alt;
+		_mission_item.altitude_is_relative = false;
+
+		_mission_item.acceptance_radius = _navigator->get_acceptance_radius();
+		_mission_item.time_inside = 0.0f;
+		_mission_item.autocontinue = true;
+		_mission_item.origin = ORIGIN_ONBOARD;
+		_mission_item.loiter_radius = _navigator->get_loiter_radius();
+
+		mavlink_log_info(_navigator->get_mavlink_log_pub(), "RTL Mission land: climb to %d m\t",
+				 (int)ceilf(_rtl_alt));
+		events::send<int32_t>(events::ID("rtl_mission_land_climb"), events::Log::Info,
+				      "RTL Mission Land: climb to {1m_v}",
+				      (int32_t)ceilf(_rtl_alt));
+
+		_needs_climbing = false;
+		mission_apply_limitation(_mission_item);
+		mission_item_to_position_setpoint(_mission_item, &pos_sp_triplet->current);
+
+	} else if (_vehicle_status_sub.get().vehicle_type == vehicle_status_s::VEHICLE_TYPE_ROTARY_WING &&
+		   _vehicle_status_sub.get().is_vtol &&
+		   !_land_detected_sub.get().landed && _work_item_type == WorkItemType::WORK_ITEM_TYPE_DEFAULT) {
+		// Transition to fixed wing if necessary.
 		set_vtol_transition_item(&_mission_item, vtol_vehicle_status_s::VEHICLE_VTOL_STATE_FW);
 		_mission_item.yaw = _navigator->get_local_position()->heading;
 
