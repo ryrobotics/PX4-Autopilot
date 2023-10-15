@@ -30,11 +30,17 @@ param set-default SYS_MC_EST_GROUP 2 # default using ekf2
 param set-default DSHOT_CONFIG 600 # Tekko32 F4 50A
 param set-default NAV_RCL_ACT 3 # using Land Mode after RC Loss
 param set-default MOT_ORDERING 1 # using Betaflight ESC
+param set-default BAT1_N_CELLS 4 # 4S LiPo Batt
 
-param set-default MAV_0_CONFIG 101 # using TELEM1<->USART3 /dev/ttyS2
+param set-default MAV_0_CONFIG 101 # using TELEM1<->USART3 (TELEM2) /dev/ttyS2
 param set-default SER_TEL1_BAUD 57600 # for MAVLink Radio
 
-param set-default MAV_1_CONFIG 102 # using TELEM2<->USART1 /dev/ttyS0
+param set-default MAV_1_CONFIG 102 # using TELEM2<->USART1 (TELEM1) /dev/ttyS0
 param set-default SER_TEL2_BAUD 921600 # for Onboard Computer
+
+param set-default MAV_2_CONFIG 103 # using TELEM3<->UART4 (GPS1) /dev/ttyS3
+param set-default SER_TEL3_BAUD 115200 # for MicroLink Optical Flow MTF-01
+
+param set-default SENS_FLOW_ROT 0 # for MicroLink Optical Flow MTF-01
 
 param set-default EKF2_MAG_TYPE 5 # none onboard MAG for EKF2
