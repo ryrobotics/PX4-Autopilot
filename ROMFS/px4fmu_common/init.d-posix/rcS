@@ -151,16 +151,16 @@ then
 	param set SENS_DPRES_OFF 0.001
 
 	##############
-	## XTDrone  ##
+	## for SLAM ##
 	##############
 
 	# GPS used
-	param set EKF2_AID_MASK 1
+	# param set EKF2_AID_MASK 1
 	# Vision used and GPS denied
 	#param set EKF2_AID_MASK 24
 
 	# Barometer used for hight measurement
-	param set EKF2_HGT_MODE 0
+	# param set EKF2_HGT_MODE 0
 	# Barometer denied and vision used for hight measurement
 	#param set EKF2_HGT_MODE 3
 fi
