@@ -8,3 +8,41 @@ param set-default BAT1_A_PER_V 40
 
 param set-default BAT2_V_DIV 11
 param set-default BAT2_A_PER_V 40
+
+# system_power unavailable
+param set-default CBRK_SUPPLY_CHK 894281
+
+# Select the Generic 250 Racer by default
+param set-default SYS_AUTOSTART 4001
+
+# use the Q attitude estimator, it works w/o mag or GPS.
+# param set-default SYS_MC_EST_GROUP 3
+# param set-default ATT_ACC_COMP 0
+# param set-default ATT_W_ACC 0.4000
+# param set-default ATT_W_GYRO_BIAS 0.0000
+
+
+param set-default IMU_GYRO_RATEMAX 2000
+
+param set-default SYS_MC_EST_GROUP 2 # default using ekf2
+
+# TBD: Update to use ctrl_alloc
+param set-default DSHOT_CONFIG 600 # Tekko32 F4 50A
+param set-default MOT_ORDERING 1 # using Betaflight ESC
+
+param set-default NAV_RCL_ACT 3 # using Land Mode after RC Loss
+param set-default BAT1_N_CELLS 4 # 4S LiPo Batt
+
+param set-default MAV_0_CONFIG 104 # using TEL4<->UART7 /dev/ttyS5
+param set-default SER_TEL4_BAUD 57600 # for MAVLink Radio
+
+param set-default MAV_1_CONFIG 103 # using TEL3<->UART4 /dev/ttyS3
+param set-default SER_TEL3_BAUD 921600 # for Onboard Computer
+
+param set-default MAV_2_CONFIG 101 # using TEL1<->USART2 /dev/ttyS1
+param set-default SER_TEL2_BAUD 115200 # for MicroLink Optical Flow MTF-01
+
+param set-default SENS_FLOW_ROT 0 # for MicroLink Optical Flow MTF-01
+
+param set-default SYS_HAS_MAG 0 # none onboard MAG
+param set-default EKF2_MAG_TYPE 5 # none onboard MAG for EKF2
