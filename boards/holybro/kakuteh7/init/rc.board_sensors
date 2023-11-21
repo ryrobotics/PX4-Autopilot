@@ -4,6 +4,11 @@
 #------------------------------------------------------------------------------
 board_adc start
 
+# Make primary IMU as BMI088
+# <-- X of IMU ponit to left of the FC
+bmi088_i2c -X -A -R 6 start
+bmi088_i2c -X -G -R 6 start
+
 # The default IMU is an ICM20689, but there might also be an MPU6000
 if ! mpu6000 -R 6 -s start
 then
