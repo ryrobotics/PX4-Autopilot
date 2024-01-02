@@ -27,6 +27,7 @@ parameters:
                 7: Motors (6DOF)
                 8: Multirotor with Tilt
                 9: Custom
+                10: Multirotor with Tilt & Wheel
             default: 0
 
         CA_METHOD:
@@ -758,4 +759,34 @@ mixer:
                             label: 'Yaw Scale'
                           - name: 'CA_SV_CS${i}_TRIM'
                             label: 'Trim'
+
+            10: # Multirotor with Tilt
+                title: 'Multirotor with Tilt & Wheel'
+                actuators:
+                  - actuator_type: 'motor'
+                    count: 'CA_ROTOR_COUNT'
+                    per_item_parameters:
+                        standard:
+                            position: [ 'CA_ROTOR${i}_PX', 'CA_ROTOR${i}_PY', 'CA_ROTOR${i}_PZ' ]
+                        extra:
+                          - name: 'CA_ROTOR${i}_KM'
+                            label: 'Direction CCW'
+                            function: 'spin-dir'
+                            show_as: 'true-if-positive'
+                          - name: 'CA_ROTOR${i}_TILT'
+                            label: 'Tilted by'
+                  - actuator_type: 'servo'
+                    group_label: 'Tilt Servos'
+                    count: 'CA_SV_TL_COUNT'
+                    item_label_prefix: 'Tilt ${i}'
+                    per_item_parameters:
+                        extra:
+                          - name: 'CA_SV_TL${i}_MINA'
+                            label: "Angle at Min\nTilt"
+                          - name: 'CA_SV_TL${i}_MAXA'
+                            label: "Angle at Max\nTilt"
+                          - name: 'CA_SV_TL${i}_TD'
+                            label: 'Tilt Direction'
+                          - name: 'CA_SV_TL${i}_CT'
+                            label: 'Use for Control'
 

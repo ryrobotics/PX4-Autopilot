@@ -250,6 +250,10 @@ ControlAllocator::update_effectiveness_source()
 			tmp = new ActuatorEffectivenessMCTilt(this);
 			break;
 
+		case EffectivenessSource::MULTIROTOR_WITH_TILT_WHEEL:
+			tmp = new ActuatorEffectivenessMCTiltWheel(this);
+			break;
+
 		case EffectivenessSource::CUSTOM:
 			tmp = new ActuatorEffectivenessCustom(this);
 			break;

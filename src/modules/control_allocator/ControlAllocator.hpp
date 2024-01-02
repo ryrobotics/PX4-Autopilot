@@ -50,6 +50,7 @@
 #include <ActuatorEffectivenessRoverDifferential.hpp>
 #include <ActuatorEffectivenessFixedWing.hpp>
 #include <ActuatorEffectivenessMCTilt.hpp>
+#include <ActuatorEffectivenessMCTiltWheel.hpp>
 #include <ActuatorEffectivenessCustom.hpp>
 
 #include <ControlAllocation.hpp>
@@ -148,6 +149,7 @@ private:
 		MOTORS_6DOF = 7,
 		MULTIROTOR_WITH_TILT = 8,
 		CUSTOM = 9,
+		MULTIROTOR_WITH_TILT_WHEEL =10,
 	};
 
 	EffectivenessSource _effectiveness_source_id{EffectivenessSource::NONE};
