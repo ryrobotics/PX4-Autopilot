@@ -114,8 +114,14 @@ void ActuatorEffectivenessMCTilt::updateSetpoint(const matrix::Vector<float, NUM
 	_yaw_tilt_saturation_flags.tilt_yaw_pos = yaw_saturated_positive;
 }
 
-void ActuatorEffectivenessMCTilt::getUnallocatedControl(int matrix_index, control_allocator_status_s &status)
+void ActuatorEffectivenessMCTilt::getAllocatedAndUnallocatedControl(int matrix_index,
+		control_allocator_status_s &status)
 {
+	// only handle matrix 0 (motors and tilts)
+	if (matrix_index == 1) {
+		return;
+	}
+
 	// Note: the values '-1', '1' and '0' are just to indicate a negative,
 	// positive or no saturation to the rate controller. The actual magnitude is not used.
 	if (_yaw_tilt_saturation_flags.tilt_yaw_pos) {

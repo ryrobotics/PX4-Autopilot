@@ -61,7 +61,7 @@ public:
 
 	const char *name() const override { return "MC Tilt"; }
 
-	void getUnallocatedControl(int matrix_index, control_allocator_status_s &status) override;
+	void getAllocatedAndUnallocatedControl(int matrix_index, control_allocator_status_s &status) override;
 
 protected:
 	ActuatorVector _tilt_offsets;
