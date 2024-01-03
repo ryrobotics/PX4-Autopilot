@@ -56,7 +56,8 @@ ActuatorEffectivenessTailsitterVTOL::getEffectivenessMatrix(Configuration &confi
 
 	// MC motors
 	configuration.selected_matrix = 0;
-	_mc_rotors.enablePropellerTorque(_mc_rotors.geometry().num_rotors > 3); // enable MC yaw control if more than 3 rotors
+	// enable MC yaw control if more than 3 rotors
+	_mc_rotors.enableYawByDifferentialThrust(_mc_rotors.geometry().num_rotors > 3);
 	const bool mc_rotors_added_successfully = _mc_rotors.addActuators(configuration);
 
 	// Control Surfaces
@@ -78,13 +79,13 @@ void ActuatorEffectivenessTailsitterVTOL::setFlightPhase(const FlightPhase &flig
 	// update stopped motors //TODO: add option to switch off certain motors in FW
 	switch (flight_phase) {
 	case FlightPhase::FORWARD_FLIGHT:
-		_stopped_motors = 0;
+		_stopped_motors_mask = 0;
 		break;
 
 	case FlightPhase::HOVER_FLIGHT:
 	case FlightPhase::TRANSITION_FF_TO_HF:
 	case FlightPhase::TRANSITION_HF_TO_FF:
-		_stopped_motors = 0;
+		_stopped_motors_mask = 0;
 		break;
 	}
 }

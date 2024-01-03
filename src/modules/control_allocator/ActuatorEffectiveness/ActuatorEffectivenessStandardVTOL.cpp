@@ -64,7 +64,8 @@ ActuatorEffectivenessStandardVTOL::getEffectivenessMatrix(Configuration &configu
 }
 
 void ActuatorEffectivenessStandardVTOL::updateSetpoint(const matrix::Vector<float, NUM_AXES> &control_sp,
-		int matrix_index, ActuatorVector &actuator_sp)
+		int matrix_index, ActuatorVector &actuator_sp, const matrix::Vector<float, NUM_ACTUATORS> &actuator_min,
+		const matrix::Vector<float, NUM_ACTUATORS> &actuator_max)
 {
 	// apply flaps
 	if (matrix_index == 1) {
@@ -89,13 +90,13 @@ void ActuatorEffectivenessStandardVTOL::setFlightPhase(const FlightPhase &flight
 	// update stopped motors
 	switch (flight_phase) {
 	case FlightPhase::FORWARD_FLIGHT:
-		_stopped_motors = _mc_motors_mask;
+		_stopped_motors_mask = _mc_motors_mask;
 		break;
 
 	case FlightPhase::HOVER_FLIGHT:
 	case FlightPhase::TRANSITION_FF_TO_HF:
 	case FlightPhase::TRANSITION_HF_TO_FF:
-		_stopped_motors = 0;
+		_stopped_motors_mask = 0;
 		break;
 	}
 }

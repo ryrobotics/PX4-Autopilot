@@ -74,12 +74,15 @@ public:
 		RotorGeometry rotors[NUM_ROTORS_MAX];
 		int num_rotors{0};
 		bool propeller_torque_disabled{false};
+		bool yaw_by_differential_thrust_disabled{false};
 		bool propeller_torque_disabled_non_upwards{false}; ///< keeps propeller torque enabled for upward facing motors
 	};
 
 	ActuatorEffectivenessRotors(ModuleParams *parent, AxisConfiguration axis_config = AxisConfiguration::Configurable,
 				    bool tilt_support = false);
 	virtual ~ActuatorEffectivenessRotors() = default;
+
+	bool getEffectivenessMatrix(Configuration &configuration, EffectivenessUpdateReason external_update) override;
 
 	void getDesiredAllocationMethod(AllocationMethod allocation_method_out[MAX_NUM_MATRICES]) const override
 	{
@@ -96,7 +99,7 @@ public:
 
 	bool addActuators(Configuration &configuration);
 
-	const char *name() const override { return "Multirotor"; }
+	const char *name() const override { return "Rotors"; }
 
 	/**
 	 * Sets the motor axis from tilt configurations and current tilt control.
@@ -115,6 +118,8 @@ public:
 	static matrix::Vector3f tiltedAxis(float tilt_angle, float tilt_direction);
 
 	void enablePropellerTorque(bool enable) { _geometry.propeller_torque_disabled = !enable; }
+
+	void enableYawByDifferentialThrust(bool enable) { _geometry.yaw_by_differential_thrust_disabled = !enable; }
 
 	void enablePropellerTorqueNonUpwards(bool enable) { _geometry.propeller_torque_disabled_non_upwards = !enable; }
 

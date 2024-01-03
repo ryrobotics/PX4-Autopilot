@@ -115,7 +115,7 @@ parameters:
             default: 0
         CA_ROTOR${i}_PX:
             description:
-                short: Position of rotor ${i} along X body axis
+                short: Position of rotor ${i} along X body axis relative to center of gravity
             type: float
             decimal: 2
             increment: 0.1
@@ -126,7 +126,7 @@ parameters:
             default: 0.0
         CA_ROTOR${i}_PY:
             description:
-                short: Position of rotor ${i} along Y body axis
+                short: Position of rotor ${i} along Y body axis relative to center of gravity
             type: float
             decimal: 2
             increment: 0.1
@@ -137,7 +137,7 @@ parameters:
             default: 0.0
         CA_ROTOR${i}_PZ:
             description:
-                short: Position of rotor ${i} along Z body axis
+                short: Position of rotor ${i} along Z body axis relative to center of gravity
             type: float
             decimal: 2
             increment: 0.1
@@ -479,6 +479,18 @@ mixer:
                             label: 'Direction CCW'
                             function: 'spin-dir'
                             show_as: 'true-if-positive'
+                          - name: 'CA_ROTOR${i}_AX'
+                            label: 'Axis X'
+                            function: 'axisx'
+                            advanced: true
+                          - name: 'CA_ROTOR${i}_AY'
+                            label: 'Axis Y'
+                            function: 'axisy'
+                            advanced: true
+                          - name: 'CA_ROTOR${i}_AZ'
+                            label: 'Axis Z'
+                            function: 'axisz'
+                            advanced: true
 
             1: # Fixed Wing
                 title: 'Fixed Wing'

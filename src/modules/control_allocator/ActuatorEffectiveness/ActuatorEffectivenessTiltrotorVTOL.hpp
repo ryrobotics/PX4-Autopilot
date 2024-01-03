@@ -75,11 +75,15 @@ public:
 	void setFlightPhase(const FlightPhase &flight_phase) override;
 
 	void updateSetpoint(const matrix::Vector<float, NUM_AXES> &control_sp, int matrix_index,
-			    ActuatorVector &actuator_sp) override;
+			    ActuatorVector &actuator_sp, const matrix::Vector<float, NUM_ACTUATORS> &actuator_min,
+			    const matrix::Vector<float, NUM_ACTUATORS> &actuator_max) override;
 
 	const char *name() const override { return "VTOL Tiltrotor"; }
 
 	uint32_t getStoppedMotors() const override { return _stopped_motors; }
+
+	void getAllocatedAndUnallocatedControl(int matrix_index, control_allocator_status_s &status) override;
+
 protected:
 	bool _combined_tilt_updated{true};
 	ActuatorEffectivenessRotors _mc_rotors;
@@ -95,4 +99,12 @@ protected:
 	float _last_tilt_control{NAN};
 
 	uORB::Subscription _actuator_controls_1_sub{ORB_ID(actuator_controls_1)};
+	uORB::Subscription _actuator_controls_0_sub{ORB_ID(actuator_controls_0)};
+
+	struct YawTiltSaturationFlags {
+		bool tilt_yaw_pos;
+		bool tilt_yaw_neg;
+	};
+
+	YawTiltSaturationFlags _yaw_tilt_saturation_flags{};
 };
