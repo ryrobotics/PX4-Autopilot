@@ -149,6 +149,20 @@ then
 
 	param set SENS_BOARD_X_OFF 0.000001
 	param set SENS_DPRES_OFF 0.001
+
+	##############
+	## XTDrone  ##
+	##############
+
+	# GPS used
+	param set EKF2_AID_MASK 1
+	# Vision used and GPS denied
+	#param set EKF2_AID_MASK 24
+
+	# Barometer used for hight measurement
+	param set EKF2_HGT_MODE 0
+	# Barometer denied and vision used for hight measurement
+	#param set EKF2_HGT_MODE 3
 fi
 
 param set-default BAT1_N_CELLS 4
